@@ -1,24 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="https://picsum.photos/32" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 网站标题（显示在浏览器标签页） -->
   <title>sinnyun | Designer Portfolio</title>
+
+  <!-- Tailwind CSS 框架 -->
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
+    /* ============================================
+       全局样式配置
+       ============================================ */
+
+    /* 导入Google字体 */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
 
+    /* ============================================
+       基础样式
+       ============================================ */
     body {
+      /* 正文字体：Inter（现代无衬线字体） */
       font-family: 'Inter', sans-serif;
+
+      /* 背景颜色：深灰黑色 (#0c0a09 = stone-950) */
       background-color: #0c0a09;
-      /* stone-950 */
+
+      /* 文字颜色：浅灰白色 (#f5f5f4 = stone-100) */
       color: #f5f5f4;
-      /* stone-100 */
+
+      /* 隐藏横向滚动条 */
       overflow-x: hidden;
     }
 
+    /* ============================================
+       标题字体
+       ============================================ */
+    /* 所有标题使用 Playfair Display（优雅衬线字体） */
     h1,
     h2,
     h3,
@@ -28,29 +50,50 @@
       font-family: 'Playfair Display', serif;
     }
 
-    /* Hide scrollbar for Chrome, Safari and Opera */
+    /* ============================================
+       隐藏滚动条样式
+       ============================================ */
+    /* 适用于带有 .no-scrollbar 类的元素 */
+
+    /* Chrome, Safari, Opera 浏览器 */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
 
-    /* Hide scrollbar for IE, Edge and Firefox */
+    /* IE, Edge, Firefox 浏览器 */
     .no-scrollbar {
       -ms-overflow-style: none;
-      /* IE and Edge */
+      /* IE 和 Edge */
       scrollbar-width: none;
       /* Firefox */
     }
 
-    /* Disable native cursor pointer on all clickable elements */
+    /* ============================================
+       禁用原生鼠标指针样式
+       ============================================ */
+    /* 
+     * 这样做是为了使用自定义光标
+     * 所有可点击元素都不显示浏览器默认的手型光标
+     */
     a,
+    /* 链接 */
     button,
+    /* 按钮 */
     [role="button"],
+    /* 按钮角色元素 */
     input[type="button"],
+    /* 按钮输入框 */
     input[type="submit"],
+    /* 提交按钮 */
     [onclick] {
+      /* 带点击事件的元素 */
       cursor: none !important;
     }
   </style>
+
+  <!-- ============================================
+       JavaScript 模块导入配置
+       ============================================ -->
   <script type="importmap">
 {
   "imports": {
@@ -63,12 +106,51 @@
   }
 }
 </script>
+
+  <!-- 额外的CSS样式文件（如果有） -->
   <link rel="stylesheet" href="/index.css">
 </head>
 
 <body>
+  <!-- React应用的挂载点 -->
   <div id="root"></div>
+
+  <!-- 主应用入口文件 -->
   <script type="module" src="/index.tsx"></script>
 </body>
 
 </html>
+
+<!-- 
+  ============================================
+  常见修改说明
+  ============================================
+  
+  1. 修改网站标题：
+     找到 <title> 标签，修改其中的文字
+     例如：<title>你的名字 | 作品集</title>
+  
+  2. 修改背景颜色：
+     找到 body { background-color: #0c0a09; }
+     替换颜色代码，例如：
+     - 纯黑色：#000000
+     - 深蓝色：#0f172a
+     - 深紫色：#1e1b4b
+  
+  3. 修改文字颜色：
+     找到 body { color: #f5f5f4; }
+     替换颜色代码，例如：
+     - 纯白色：#ffffff
+     - 浅灰色：#e5e7eb
+     - 米白色：#fef3c7
+  
+  4. 更换字体：
+     - 修改 @import url(...) 中的字体链接
+     - 修改 font-family 属性
+     
+     推荐字体组合：
+     - 正文：Inter, Roboto, Open Sans
+     - 标题：Playfair Display, Merriweather, Lora
+  
+  注意：修改颜色时请使用十六进制颜色代码（#开头）
+-->
