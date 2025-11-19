@@ -1,56 +1,114 @@
-# Project Progress & Context
+# 项目进度与上下文
 
-This document summarizes the modifications and current state of the project to facilitate understanding for future AI assistants.
+本文档总结了项目的修改和当前状态，以便未来的AI助手更好地理解项目。
 
-## Project Overview
--   **Stack**: React + Vite + TypeScript
--   **Styling**: Tailwind CSS
--   **Animation**: Framer Motion
--   **Routing**: React Router DOM
+## 项目概览
+-   **技术栈**: React + Vite + TypeScript
+-   **样式**: Tailwind CSS
+-   **动画**: Framer Motion
+-   **路由**: React Router DOM
 
-## Recent Modifications
+## 修改记录
 
-### 1. Project Cards (`Work.tsx`)
-Focused on creating a premium, fluid interactive experience for the horizontal project list.
+### 1. 项目卡片 (`Work.tsx`)
+专注于为横向项目列表创建高级、流畅的交互体验。
 
-*   **Drag-to-Scroll**: Implemented custom drag logic with momentum/inertia.
-*   **3D Tilt Effect**: Added a subtle 3D tilt to cards based on mouse position (range: +/- 5deg).
-*   **Mouse Wheel Scrolling**:
-    *   Mapped vertical wheel events to horizontal scroll.
-    *   Implemented momentum scrolling for the wheel.
-    *   Added **Directional Snapping**: Smart snapping that biases towards the scroll direction to prevent "bounce back" on small scrolls.
-*   **Snapping**: Custom JavaScript-based snapping (replacing CSS scroll-snap) for smoother settling.
+*   **拖拽滚动**: 实现了带有动量/惯性的自定义拖拽逻辑。
+*   **3D倾斜效果**: 根据鼠标位置为卡片添加微妙的3D倾斜（范围：+/- 5度）。
+*   **鼠标滚轮滚动**:
+    *   将垂直滚轮事件映射到横向滚动。
+    *   为滚轮实现动量滚动。
+    *   添加了**方向性吸附**: 智能吸附，偏向滚动方向，防止小幅滚动时的"反弹"。
+*   **吸附**: 基于自定义JavaScript的吸附（替代CSS scroll-snap）以实现更平滑的停靠。
 
-### 2. Homepage (`Home.tsx`)
-Refined the visual presentation and added a complex loading sequence.
+### 2. 主页 (`Home.tsx`)
+优化了视觉呈现并添加了复杂的加载序列。
 
-#### Visual & Interaction Improvements
-*   **Transitions**:
-    *   **No Flash**: Fixed white flashes between slides by adjusting opacity timings.
-    *   **Parallax Cover**: Implemented a transition where the new slide slides *over* the exiting slide (which moves slightly in reverse), eliminating black gaps/borders.
-    *   **Easing**: Changed to a slow `easeInOut` (1s duration) for a cinematic feel.
-*   **Ken Burns Effect**: Active slide image slowly scales up (1.0 -> 1.1 over 6s).
-*   **Wheel Navigation**: Added mouse wheel support to switch slides (up/down).
-*   **UI Polish**:
-    *   Removed harsh white borders from thumbnails.
-    *   Added dynamic hover effects (scale + letter spacing) to the main title.
-    *   Made text entrance animations more dramatic (larger Y-offset).
+#### 视觉与交互改进
+*   **过渡效果**:
+    *   **无闪烁**: 通过调整透明度时序修复了幻灯片之间的白色闪烁。
+    *   **视差覆盖**: 实现了新幻灯片滑过退出幻灯片（略微反向移动）的过渡效果，消除了黑色间隙/边框。
+    *   **缓动**: 改为慢速`easeInOut`（1秒持续时间）以获得电影感。
+*   **Ken Burns效果**: 活动幻灯片图像缓慢放大（1.0 -> 1.1，持续6秒）。
+*   **滚轮导航**: 添加了鼠标滚轮支持以切换幻灯片（上/下）。
+*   **UI优化**:
+    *   移除了缩略图的刺眼白色边框。
+    *   为主标题添加了动态悬停效果（缩放 + 字母间距）。
+    *   使文本入场动画更具戏剧性（更大的Y偏移）。
 
-#### Loading Animation Iterations
-The loading animation evolved through several requests:
-1.  **Iteration 1 (5x5 Grid)**: 25 images, center image zoomed to fill screen.
-2.  **Iteration 2 (4x3 Grid)**: 12 images, new placeholders, center hero image zoomed to fill screen.
-3.  **Final State (5x3 Grid)**:
-    *   **Grid**: 5 columns x 3 rows (15 images).
-    *   **Images**: Mix of placeholders and the hero image at Index 7 (Row 1, Col 2).
-    *   **Exit Animation**: Columns slide out vertically (alternating Up/Down).
-    *   **Entry Transition**: The "Zoom to Fill" effect was **removed**. The Homepage now enters with its standard slide animation for consistency.
+#### 加载动画迭代
+加载动画经历了几次请求的演变：
+1.  **迭代1 (5x5网格)**: 25张图片，中心图片缩放填充屏幕。
+2.  **迭代2 (4x3网格)**: 12张图片，新占位符，中心英雄图片缩放填充屏幕。
+3.  **最终状态 (5x3网格)**:
+    *   **网格**: 5列 x 3行（15张图片）。
+    *   **图片**: 占位符和索引7（第1行，第2列）的英雄图片混合。
+    *   **退出动画**: 列垂直滑出（交替向上/向下）。
+    *   **入场过渡**: **移除**了"缩放填充"效果。主页现在以标准幻灯片动画进入以保持一致性。
 
-## Current State
-*   **`Work.tsx`**: Fully interactive with polished physics-based scrolling.
-*   **`Home.tsx`**: Features a 5x3 grid preloader that transitions into a smooth, cinematic slider with Ken Burns effects and wheel navigation.
+### 3. 项目详情页增强 (`ProjectDetail.tsx`)
+为项目详情页添加了动态图片网格布局系统。
 
-## Key Files
-*   `pages/Work.tsx`: Project list logic.
-*   `pages/Home.tsx`: Homepage slider and Preloader component.
-*   `data.ts`: Project data and image sources.
+*   **动态布局系统**:
+    *   支持1列、2列、3列的灵活网格布局
+    *   每个项目可自定义布局模式序列
+    *   通过`layout`数组配置（如`[1, 2, 3, 2, 1]`）
+*   **视觉优化**:
+    *   图片间距从`gap-8`增加到`gap-12`
+    *   添加了平滑的入场动画（渐入 + 上滑）
+    *   优化了响应式布局
+
+### 4. 自定义交互光标 (`Cursor.tsx`)
+实现了全局自定义光标系统，提供三种状态的视觉反馈。
+
+*   **光标状态**:
+    *   **默认状态**: 白色外圈 + 小白点，带有微妙的延迟"抖动"效果
+    *   **指针状态**: 悬停在可点击元素时，外圈变大变红，应用反色效果
+    *   **拖拽状态**: 悬停在可拖拽元素时，外圈变大变红，内点变为左右箭头图标
+*   **实现细节**:
+    *   使用`framer-motion`实现平滑跟随和状态动画
+    *   通过`data-cursor`属性触发不同状态
+    *   全局禁用原生光标样式
+*   **应用范围**:
+    *   主页: 默认光标，无拖拽效果
+    *   项目分类页: 横向滚动容器显示拖拽光标
+    *   所有链接/按钮: 显示指针光标
+
+### 5. 项目分类页筛选功能 (`Work.tsx`)
+为项目分类页添加了分类筛选系统。
+
+*   **筛选功能**:
+    *   自动统计项目数量，显示前5个最常见的分类
+    *   "All" + 5个分类标签，共6个筛选选项
+    *   标签按钮采用圆角设计，选中状态为白底黑字
+*   **布局设计**:
+    *   筛选标签与"Selected Works"标题在同一行
+    *   标题左对齐，标签右对齐，底部齐平
+    *   标签间距为`gap-4`，提供宽松舒适的视觉效果
+*   **动画效果**:
+    *   使用`AnimatePresence`包裹项目卡片
+    *   切换分类时，卡片有渐入渐出 + 上下滑动动画
+    *   动画时长0.6秒，使用自定义缓动曲线
+*   **间距优化**:
+    *   头部区域添加`pb-12`底部内边距
+    *   滚动容器添加`mt-32`顶部外边距
+    *   头部从`top-24`调整到`top-16`
+
+## 当前状态
+*   **`Work.tsx`**: 完全交互式，具有精致的基于物理的滚动和分类筛选功能。
+*   **`Home.tsx`**: 具有5x3网格预加载器，过渡到带有Ken Burns效果和滚轮导航的平滑电影感滑块。
+*   **`ProjectDetail.tsx`**: 支持动态图片网格布局，每个项目可自定义展示方式。
+*   **`Cursor.tsx`**: 全局自定义光标系统，提供三种交互状态的视觉反馈。
+
+## 关键文件
+*   `pages/Work.tsx`: 项目列表逻辑和分类筛选。
+*   `pages/Home.tsx`: 主页滑块和预加载器组件。
+*   `pages/ProjectDetail.tsx`: 项目详情页和动态布局系统。
+*   `components/Cursor.tsx`: 自定义光标组件。
+*   `data.ts`: 项目数据和图片源。
+*   `types.ts`: TypeScript类型定义。
+
+## 数据结构
+*   每个项目包含: `id`, `numericId`, `title`, `category`, `year`, `location`, `description`, `coverImage`, `images`, `layout`, `tags`
+*   `layout`数组定义项目详情页的图片网格模式
+*   `HOME_SHOWCASE_ORDER`定义主页展示的项目顺序

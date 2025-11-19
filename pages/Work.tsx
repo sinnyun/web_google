@@ -1,12 +1,10 @@
 import React, { useRef, useState, MouseEvent } from 'react';
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { PROJECTS } from '../data';
 import { ArrowRight } from 'lucide-react';
 
 const Work: React.FC = () => {
-  // We are using native horizontal scroll for better accessibility and performance,
-  // but enriching it with Framer Motion for entrance animations.
   const sliderRef = useRef<HTMLDivElement>(null);
   const [isDown, setIsDown] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -17,6 +15,28 @@ const Work: React.FC = () => {
   const lastX = useRef(0);
   const animationFrameId = useRef<number | null>(null);
   const isDragging = useRef(false);
+
+  // Category Filter State
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+
+  // Get top 5 categories by project count
+  const allCategories = PROJECTS.map(p => p.category);
+  const categoryCounts = allCategories.reduce((acc, cat) => {
+    acc[cat] = (acc[cat] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const top5Categories = Object.entries(categoryCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([cat]) => cat);
+
+  const categories = ['All', ...top5Categories];
+
+  // Filter projects based on selected category
+  const filteredProjects = selectedCategory === 'All'
+    ? PROJECTS
+    : PROJECTS.filter(p => p.category === selectedCategory);
 
   const handleMouseDown = (e: MouseEvent) => {
     if (!sliderRef.current) return;
@@ -47,10 +67,9 @@ const Work: React.FC = () => {
     if (!isDown || !sliderRef.current) return;
     e.preventDefault();
     const x = e.pageX - sliderRef.current.offsetLeft;
-    const walk = (x - startX) * 2; // Scroll-fast
+    const walk = (x - startX) * 2;
     sliderRef.current.scrollLeft = scrollLeft - walk;
 
-    // Calculate velocity
     const delta = e.pageX - lastX.current;
     lastX.current = e.pageX;
     velX.current = delta;
@@ -62,16 +81,8 @@ const Work: React.FC = () => {
       return;
     }
 
-    velX.current *= 0.95; // Friction
+    velX.current *= 0.95;
     if (sliderRef.current) {
-      // For drag: velX is positive when moving right (mouse moves right).
-      // If mouse moves right, we want to scroll left (pulling content).
-      // So scrollLeft -= velX.
-
-      // For wheel: we adjusted handleWheel to subtract from velX.
-      // So if wheel down (scroll right), velX is negative.
-      // scrollLeft -= (-val) -> scrollLeft += val. Scroll increases. Correct.
-
       sliderRef.current.scrollLeft -= velX.current * 2;
     }
 
@@ -81,12 +92,8 @@ const Work: React.FC = () => {
   const handleWheel = (e: React.WheelEvent) => {
     if (sliderRef.current) {
       stopAnimation();
-      // Wheel down (positive deltaY) -> Scroll Right (increase scrollLeft)
-      // beginMomentum does: scrollLeft -= velX
-      // So we need negative velX to increase scrollLeft
       velX.current -= e.deltaY * 0.5;
 
-      // Cap velocity
       if (velX.current > 100) velX.current = 100;
       if (velX.current < -100) velX.current = -100;
 
@@ -111,7 +118,6 @@ const Work: React.FC = () => {
     let closestElement: HTMLElement | null = null;
     let minDistance = Infinity;
 
-    // Find closest child
     const children = Array.from(container.children);
     children.forEach((child) => {
       const htmlChild = child as HTMLElement;
@@ -124,62 +130,27 @@ const Work: React.FC = () => {
       }
     });
 
-    // Directional Snapping Logic
-    // If we have significant velocity or moved enough, force next/prev
     if (closestElement) {
       const index = children.indexOf(closestElement);
       const currentCenter = closestElement.offsetLeft + closestElement.offsetWidth / 2;
 
-      // Positive Velocity = Drag Right = Scroll Left -> Go Prev (Left)
-      // We want to go to the previous item if we are moving left.
       if (velX.current > 0.5 && index > 0) {
-        // Only force prev if closestElement is NOT already the previous one (i.e., it's the current one we are leaving)
-        // If center < currentCenter, we are to the left of the closest element's center.
-        // If we are moving left (velX > 0), and we are still to the right of the target's center, we might need to push.
-
-        // Simpler check:
-        // If closestElement is the one we are currently looking at (roughly), and we move left, we want index - 1.
-        // If closestElement is ALREADY index - 1 (because we scrolled past midpoint), we don't need to do anything.
-
-        // How do we know if closestElement is "current" or "next"?
-        // We compare center (scroll position) with currentCenter.
-
-        // If we are moving Left (velX > 0):
-        // We want to end up at a position where center approx equals targetCenter.
-        // If center > currentCenter, we are to the right of the closest element. 
-        // This means closestElement is to our Left. It IS the target. So we stick with it.
-
-        // If center < currentCenter, we are to the left of the closest element.
-        // This means closestElement is to our Right. It is the "Current" or "Next" one we are leaving.
-        // So we want to go to index - 1.
-
         if (center < currentCenter && index > 0) {
           closestElement = children[index - 1] as HTMLElement;
         }
       } else if (velX.current < -0.5 && index < children.length - 1) {
-        // Negative Velocity = Drag Left = Scroll Right -> Go Next (Right)
-        // If center > currentCenter, we are to the right of the closest element.
-        // This means closestElement is to our Left. It is the "Current" or "Prev" one.
-        // So we want to go to index + 1.
-
         if (center > currentCenter && index < children.length - 1) {
           closestElement = children[index + 1] as HTMLElement;
         }
       }
 
-      // Special case: if velocity is very low but we are "in between", bias towards direction
-      // This handles the "small scroll" case
       if (Math.abs(velX.current) < 0.5 && Math.abs(velX.current) > 0.01) {
-        // If we slightly scrolled left (positive vel), prefer prev
         if (velX.current > 0 && index > 0) {
-          // If closestElement is to our Right (center < currentCenter), it's the one we are leaving. Go prev.
           if (center < currentCenter) {
             closestElement = children[index - 1] as HTMLElement;
           }
         }
-        // If we slightly scrolled right (negative vel), prefer next
         if (velX.current < 0 && index < children.length - 1) {
-          // If closestElement is to our Left (center > currentCenter), it's the one we are leaving. Go next.
           if (center > currentCenter) {
             closestElement = children[index + 1] as HTMLElement;
           }
@@ -203,7 +174,7 @@ const Work: React.FC = () => {
   const animateScroll = (element: HTMLElement, target: number) => {
     const start = element.scrollLeft;
     const distance = target - start;
-    const duration = 600; // ms
+    const duration = 600;
     let startTime: number | null = null;
 
     const animation = (currentTime: number) => {
@@ -211,7 +182,6 @@ const Work: React.FC = () => {
       const timeElapsed = currentTime - startTime;
       const progress = Math.min(timeElapsed / duration, 1);
 
-      // Ease out cubic
       const ease = 1 - Math.pow(1 - progress, 3);
 
       element.scrollLeft = start + (distance * ease);
@@ -232,22 +202,40 @@ const Work: React.FC = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Fixed Header Space */}
-      <div className="absolute top-24 left-6 md:left-12 z-10 pointer-events-none">
-        <h2 className="text-6xl md:text-8xl font-serif opacity-10 md:opacity-20 text-stone-100">Selected Works</h2>
+      {/* Header with inline Category Filter */}
+      <div className="absolute top-16 left-6 md:left-12 right-6 md:right-12 z-10 flex justify-between items-end pb-12">
+        <h2 className="text-6xl md:text-8xl font-serif opacity-10 md:opacity-20 text-stone-100 pointer-events-none">Selected Works</h2>
+
+        {/* Category Filter - Right Aligned */}
+        <div className="flex gap-4 pointer-events-auto">
+          {categories.map((category) => (
+            <motion.button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-3 py-1.5 rounded-full text-[10px] tracking-widest uppercase transition-all duration-300 whitespace-nowrap ${selectedCategory === category
+                  ? 'bg-white text-black'
+                  : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+                }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {category}
+            </motion.button>
+          ))}
+        </div>
       </div>
 
       {/* Horizontal Scroll Container */}
       <div
         ref={sliderRef}
-        className={`flex-1 overflow-x-auto overflow-y-hidden flex items-center px-6 md:px-12 gap-6 md:gap-24 no-scrollbar ${isDown ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`flex-1 overflow-x-auto overflow-y-hidden flex items-center px-6 md:px-12 gap-6 md:gap-24 no-scrollbar mt-32`}
         onMouseDown={handleMouseDown}
         onMouseLeave={handleMouseLeave}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
         onWheel={handleWheel}
+        data-cursor="drag"
       >
-
         {/* Intro Spacer / Title Card */}
         <div className="snap-center shrink-0 w-[80vw] md:w-[30vw] h-[60vh] flex flex-col justify-center pointer-events-none select-none">
           <h1 className="text-4xl md:text-5xl font-serif mb-6">Explore <br /> Projects</h1>
@@ -257,15 +245,17 @@ const Work: React.FC = () => {
           <div className="mt-8 w-24 h-[1px] bg-stone-700"></div>
         </div>
 
-        {PROJECTS.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {filteredProjects.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
+        </AnimatePresence>
 
         {/* End Spacer */}
         <div className="snap-center shrink-0 w-[20vw]"></div>
       </div>
 
-      {/* Scroll Progress Indicator (Visual Only) */}
+      {/* Scroll Progress Indicator */}
       <div className="absolute bottom-8 left-0 w-full px-12 hidden md:flex justify-center pointer-events-none">
         <span className="text-xs tracking-widest uppercase text-stone-600">Scroll or Drag Horizontal</span>
       </div>
@@ -306,11 +296,12 @@ const ProjectCard: React.FC<{ project: typeof PROJECTS[0] }> = ({ project }) => 
   return (
     <motion.div
       ref={ref}
-      className="snap-center shrink-0 w-[85vw] md:w-[60vw] lg:w-[45vw] h-[60vh] md:h-[70vh] relative group cursor-pointer perspective-1000"
-      initial={{ opacity: 0.5, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      viewport={{ margin: "-10% 0px -10% 0px", once: false }}
+      className="snap-center shrink-0 w-[85vw] md:w-[60vw] lg:w-[45vw] h-[60vh] md:h-[70vh] relative group perspective-1000"
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -50 }}
+      transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+      layout
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
@@ -347,7 +338,7 @@ const ProjectCard: React.FC<{ project: typeof PROJECTS[0] }> = ({ project }) => 
               </div>
             </div>
             <div className="pt-4 flex gap-3">
-              {project.tags.slice(0, 2).map(tag => (
+              {project.tags?.slice(0, 2).map(tag => (
                 <span key={tag} className="text-[10px] uppercase tracking-widest border border-white/20 px-2 py-1 rounded text-stone-400">{tag}</span>
               ))}
             </div>

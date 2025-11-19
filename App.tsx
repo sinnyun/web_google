@@ -7,12 +7,14 @@ import ProjectDetail from './pages/ProjectDetail';
 import AboutOverlay from './components/AboutOverlay';
 import { AnimatePresence } from 'framer-motion';
 
+import Cursor from './components/Cursor';
+
 const Navbar: React.FC<{ onOpenAbout: () => void }> = ({ onOpenAbout }) => {
   const location = useLocation();
   const isHome = location.pathname === '/';
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-40 px-6 py-6 md:px-12 md:py-8 flex justify-between items-center mix-blend-difference text-white transition-colors duration-500`}>
+    <nav className={`fixed top-0 left-0 w-full z-40 px-6 py-6 md:px-12 md:py-8 flex justify-between items-center bg-gradient-to-b from-black/10 to-transparent text-white transition-colors duration-500`}>
       <Link to="/" className="text-xl md:text-2xl font-bold tracking-[0.2em] uppercase hover:opacity-70 transition-opacity">
         Sinnyun
       </Link>
@@ -21,8 +23,8 @@ const Navbar: React.FC<{ onOpenAbout: () => void }> = ({ onOpenAbout }) => {
         <Link to="/work" className={`hidden md:block text-sm tracking-widest uppercase hover:underline underline-offset-8 ${location.pathname === '/work' ? 'underline' : ''}`}>
           Work
         </Link>
-        <button 
-          onClick={onOpenAbout} 
+        <button
+          onClick={onOpenAbout}
           className="flex items-center gap-2 text-sm tracking-widest uppercase hover:opacity-70 transition-opacity group"
         >
           <span className="hidden md:inline">About</span>
@@ -38,9 +40,10 @@ const App: React.FC = () => {
 
   return (
     <HashRouter>
-      <div className="bg-stone-950 min-h-screen text-stone-50 selection:bg-white selection:text-black">
+      <div className="bg-stone-950 min-h-screen text-stone-50 selection:bg-white selection:text-black cursor-none">
+        <Cursor />
         <Navbar onOpenAbout={() => setIsAboutOpen(true)} />
-        
+
         <AboutOverlay isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
 
         <AnimatePresence mode='wait'>
