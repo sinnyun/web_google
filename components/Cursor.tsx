@@ -102,7 +102,7 @@ const Cursor: React.FC = () => {
         drag: {
             width: 40, // Expand to fit arrows
             height: 20,
-            backgroundColor: 'transparent',
+            backgroundColor: 'rgba(0, 0, 0, 0)', // 使用 rgba 替代 transparent 以避免动画警告
             scale: 1,
         }
     };

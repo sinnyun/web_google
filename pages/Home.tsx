@@ -159,7 +159,7 @@ const Home: React.FC = () => {
       filter: "brightness(0.5)",
     }),
     center: {
-      clipPath: "inset(0 0 0 0%)",
+      clipPath: "inset(0 0 0 0)",
       scale: 1,
       filter: "brightness(1)",
       transition: {
