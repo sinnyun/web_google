@@ -37,9 +37,9 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
           <div className="flex justify-between items-center p-8 md:p-12">
             {/* 
               网站名称/Logo
-              修改方法：将 "Sinnyun" 替换为你的名字
+              修改方法：修改 src="/logo.svg" 来更换logo图片
             */}
-            <div className="text-xl tracking-widest font-bold uppercase">Sinnyun</div>
+            <img src="/logo.svg" alt="Sinnyun" className="h-8" />
 
             {/* 关闭按钮 */}
             <button
@@ -73,9 +73,9 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
                   <span className="italic text-stone-400">用心</span> 创作 <br />
                   每一个作品。
                 */}
-                Creating digital <br />
-                <span className="italic text-stone-400">silence</span> amidst <br />
-                the noise.
+                HI！你好！<br />
+                <span className="italic text-stone-400">越努力</span>，<br />
+                越幸运。
               </motion.h2>
             </div>
 
@@ -105,10 +105,10 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
                   </p>
                 */}
                 <p>
-                  I am Sinnyun, a multidisciplinary designer based in Tokyo. My work bridges the gap between brutalist architecture principles and ephemeral digital experiences.
+                  我的名字叫 罗祥云sinnyun 。来自于有"万里长江第一城"之称的四川宜宾，现在主要工作在成都。 "越努力，越幸运"
                 </p>
                 <p>
-                  With over 10 years of experience in visual design, photography, and interactive media, I strive to strip away the unnecessary, leaving only pure emotion and function.
+                  其实对于设计这个行业，是在大学的时候才开始真正的接触的。虽然时间算不上很长，但设计的内涵一直在深深的吸引着我。设计是一段很奇妙的思想路程，既可以让人回忆起以往的一个瞬间，又会带给我们进入不同于现在的未来之中。 努力做一个不断求成长的设计师。
                 </p>
               </motion.div>
 
@@ -123,7 +123,7 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
                   "Contact" 标题
                   修改方法：将 "Contact" 替换为 "联系方式" 或其他文字
                 */}
-                <h3 className="text-sm uppercase tracking-widest text-stone-500">Contact</h3>
+                <h3 className="text-sm uppercase tracking-widest text-stone-500">联系方式</h3>
 
                 {/* 
                   邮箱地址
@@ -136,8 +136,8 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
                     <Mail ... /> your@email.com
                   </a>
                 */}
-                <a href="mailto:hello@sinnyun.design" className="flex items-center gap-4 text-2xl hover:text-stone-400 transition-colors group">
-                  <Mail className="group-hover:scale-110 transition-transform" /> hello@sinnyun.design
+                <a href="mailto:l616631804@gmail.com" className="flex items-center gap-4 text-2xl hover:text-stone-400 transition-colors group">
+                  <Mail className="group-hover:scale-110 transition-transform" /> l616631804@gmail.com
                 </a>
 
                 {/* 
@@ -155,8 +155,46 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
                   </a>
                 */}
                 <div className="flex gap-6 pt-4">
-                  <a href="#" className="hover:text-stone-400 transition-colors"><Instagram size={28} /></a>
-                  <a href="#" className="hover:text-stone-400 transition-colors"><Linkedin size={28} /></a>
+                  <a href="https://github.com/sinnyun" target="_blank" rel="noopener noreferrer" className="hover:text-stone-400 transition-colors" title="GitHub">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg>
+                  </a>
+                  <a href="https://linkedin.com/in/yourusername" target="_blank" rel="noopener noreferrer" className="hover:text-stone-400 transition-colors" title="LinkedIn"><Linkedin size={28} /></a>
+                </div>
+              </motion.div>
+
+              {/* ========== 技能专长 ========== */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55 }}
+                className="space-y-6"
+              >
+                <h3 className="text-sm uppercase tracking-widest text-stone-500">技能专长</h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* UI/UX设计 */}
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-semibold">UI/UX设计</h4>
+                    <p className="text-stone-400 text-sm">创造直观且引人入胜的用户界面</p>
+                  </div>
+
+                  {/* 前端开发 */}
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-semibold">前端开发</h4>
+                    <p className="text-stone-400 text-sm">构建响应式和交互式网站</p>
+                  </div>
+
+                  {/* 视觉设计 */}
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-semibold">视觉设计</h4>
+                    <p className="text-stone-400 text-sm">开发独特的品牌视觉识别</p>
+                  </div>
+
+                  {/* 动效设计 */}
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-semibold">动效设计</h4>
+                    <p className="text-stone-400 text-sm">创作流畅的界面动画</p>
+                  </div>
                 </div>
               </motion.div>
 
@@ -164,7 +202,7 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
+                transition={{ delay: 0.65 }}
                 className="pt-8"
               >
                 {/* 

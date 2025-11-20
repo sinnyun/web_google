@@ -43,12 +43,11 @@ const Navbar: React.FC<{ onOpenAbout: () => void }> = ({ onOpenAbout }) => {
       {/* ========== Logo/网站名称 ========== */}
       {/* 
         修改方法：
-        - 将 "Sinnyun" 替换为你的名字或品牌名
-        - tracking-[0.2em] 控制字母间距
-        - uppercase 表示大写显示
+        - 修改 src="/logo.svg" 来更换logo图片
+        - 调整 h-8 md:h-10 来改变logo高度
       */}
-      <Link to="/" className="text-xl md:text-2xl font-bold tracking-[0.2em] uppercase hover:opacity-70 transition-opacity">
-        Sinnyun
+      <Link to="/" className="hover:opacity-70 transition-opacity">
+        <img src="/logo.svg" alt="Sinnyun" className="h-8 md:h-10" />
       </Link>
 
       {/* ========== 右侧导航链接 ========== */}
