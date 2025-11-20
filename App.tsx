@@ -47,7 +47,7 @@ const Navbar: React.FC<{ onOpenAbout: () => void }> = ({ onOpenAbout }) => {
         - 调整 h-8 md:h-10 来改变logo高度
       */}
       <Link to="/" className="hover:opacity-70 transition-opacity">
-        <img src="/logo.svg" alt="Sinnyun" className="h-8 md:h-10" />
+        <img src="/logo.svg" alt="Sinnyun" className="h-8" />
       </Link>
 
       {/* ========== 右侧导航链接 ========== */}
