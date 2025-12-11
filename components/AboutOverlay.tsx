@@ -22,6 +22,27 @@ interface AboutOverlayProps {
   onClose: () => void;
 }
 
+/**
+ * 关于页面覆盖层组件，用于展示个人简介、联系方式、技能专长和客户列表等信息
+ * 
+ * @param {boolean} isOpen - 控制覆盖层是否显示的状态
+ * @param {function} onClose - 关闭覆盖层的回调函数
+ * 
+ * 组件特性：
+ * - 使用Framer Motion实现平滑的进入/退出动画
+ * - 响应式布局，适配不同屏幕尺寸
+ * - 包含多个可自定义的部分：
+ *   - 主标题文字及样式
+ *   - 个人简介段落
+ *   - 联系方式（邮箱和社交媒体）
+ *   - 技能专长展示
+ *   - 合作客户列表
+ *   - 装饰性背景文字
+ * 
+ * 注意事项：
+ * - 组件内部已标注各部分的修改方法
+ * - 所有可编辑内容都有详细的注释说明
+ */
 const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
@@ -54,7 +75,7 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
           <div className="flex-1 flex flex-col md:flex-row p-8 md:p-12 gap-12 overflow-y-auto">
 
             {/* ========== 左侧：大标题 ========== */}
-            <div className="md:w-1/2 flex flex-col justify-center space-y-8">
+            <div className="md:w-1/2 flex flex-col justify-center space-y-8 md:pl-16 lg:pl-24">
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -73,12 +94,31 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
                   <span className="italic text-stone-400">用心</span> 创作 <br />
                   每一个作品。
                 */}
-                HI！你好！<br />
-                <span className="italic text-stone-400">越努力</span>，<br />
-                越幸运。
+                <div className="flex items-center gap-8 mb-12">
+                  <img
+                    src="/avatar.jpg"
+                    alt="个人头像"
+                    className= "w-54 h-200 md:w-200 md:h-200 object-cover  mr-8"  />
+                             
+                </div>
+                {/* 
+                // 头像图片样式设置：
+                // - w-54/h-200: 移动端宽度54px/高度200px
+                // - md:w-200/md:h-200: 桌面端宽度和高度均为200px
+                // - rounded-md: 中等圆角
+                // - object-cover: 图片填充模式(保持比例裁剪)
+                // - border-2: 2px边框
+                // - border-stone-600: 边框颜色(深灰色)
+                // - mr-8: 右侧外边距8个单位className="w-54 h-200 md:w-200 md:h-200 rounded-md object-cover border-2 border-stone-600 mr-8"     
+               */}
+
+
+
+                <span className="italic text-stone-400"> HI！你好！</span> <br />
+                越努力，越幸运。<br />
+
               </motion.h2>
             </div>
-
             {/* ========== 右侧：详细信息 ========== */}
             <div className="md:w-1/2 flex flex-col justify-center space-y-12">
 
@@ -87,7 +127,7 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="space-y-6 text-lg md:text-xl font-light text-stone-300 max-w-xl"
+                className="space-y-6 text-lg md:text-xl font-light text-stone-300 max-w-2xl"
               >
                 {/* 
                   简介段落
@@ -104,8 +144,10 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
                     拥有5年的设计经验，服务过多家知名品牌。
                   </p>
                 */}
+
+                
                 <p>
-                  我的名字叫 罗祥云sinnyun 。来自于有"万里长江第一城"之称的四川宜宾，现在主要工作在成都。 "越努力，越幸运"
+                  我的名字叫 罗祥云sinnyun，来自于有"万里长江第一城"之称的四川宜宾，现在主要工作在成都。
                 </p>
                 <p>
                   其实对于设计这个行业，是在大学的时候才开始真正的接触的。虽然时间算不上很长，但设计的内涵一直在深深的吸引着我。设计是一段很奇妙的思想路程，既可以让人回忆起以往的一个瞬间，又会带给我们进入不同于现在的未来之中。 努力做一个不断求成长的设计师。
@@ -209,7 +251,7 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({ isOpen, onClose }) => {
                    "Selected Clients" 标题
                    修改方法：将 "Selected Clients" 替换为 "合作客户" 或其他文字
                  */}
-                <h3 className="text-sm uppercase tracking-widest text-stone-500 mb-4">Selected Clients</h3>
+                <h3 className="text-sm uppercase tracking-widest text-stone-500 mb-4">合作客户</h3>
 
                 {/* 
                    客户列表

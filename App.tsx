@@ -9,6 +9,18 @@
  * 3. 关于页面弹窗
  * 4. 自定义光标
  * 
+ * 🎯 DEBUG MODE: 加载动画调试模式 (当前激活)
+ * ============================================
+ * 
+ * 调试说明：
+ * - 首页已替换为 LoadingDebug 组件用于调试加载动画
+ * - 其他页面 (work, project detail) 保持正常功能
+ * - 调试完成后需要恢复原始配置
+ * 
+ * 切换方法：
+ * 1. 调试模式 → 正常模式：将 <LoadingDebug /> 改为 <Home />
+ * 2. 正常模式 → 调试模式：将 <Home /> 改为 <LoadingDebug />
+ * 
  * 一般情况下，你只需要修改导航栏的文字内容。
  */
 
@@ -19,9 +31,14 @@ import Home from './pages/Home';
 import Work from './pages/Work';
 import ProjectDetail from './pages/ProjectDetail';
 import AboutOverlay from './components/AboutOverlay';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import Cursor from './components/Cursor';
+
+// 🎯 DEBUG: 调试模式导入
+// 调试完成后注释掉下面这行，取消注释原始导入
+// import Home from './pages/Home';
+// import LoadingDebug from './components/LoadingDebug';
 
 /**
  * ============================================
@@ -33,12 +50,24 @@ import Cursor from './components/Cursor';
  * - Work链接（中间，桌面端显示）
  * - About按钮（右侧）
  */
+// 引入 motion
+// import { motion } from 'framer-motion';
+
 const Navbar: React.FC<{ onOpenAbout: () => void }> = ({ onOpenAbout }) => {
   const location = useLocation();
   const isHome = location.pathname === '/';
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-40 px-6 py-6 md:px-12 md:py-8 flex justify-between items-center bg-gradient-to-b from-black/10 to-transparent text-white transition-colors duration-500`}>
+    <motion.nav
+      initial={{ y: isHome ? -100 : 0, opacity: isHome ? 0 : 1 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{
+        duration: 1.0,
+        ease: [0.25, 0.46, 0.45, 0.94],
+        delay: isHome ? 4.8 : 0 // 首页时延迟4.8秒进场，配合加载动画
+      }}
+      className={`fixed top-0 left-0 w-full z-40 px-6 py-6 md:px-12 md:py-8 flex justify-between items-center bg-gradient-to-b from-black/10 to-transparent text-white transition-colors duration-500`}
+    >
 
       {/* ========== Logo/网站名称 ========== */}
       {/* 
@@ -77,7 +106,7 @@ const Navbar: React.FC<{ onOpenAbout: () => void }> = ({ onOpenAbout }) => {
           <Menu className="w-6 h-6 group-hover:scale-110 transition-transform" />
         </button>
       </div>
-    </nav>
+    </motion.nav>
   );
 };
 
@@ -121,8 +150,22 @@ const App: React.FC = () => {
           
           注意：不要修改这部分，除非你知道自己在做什么
         */}
+        {/* ========== 页面路由配置 ========== */}
+        {/* 
+          定义了网站的所有页面：
+          - / (首页): 显示项目幻灯片
+          - /work (作品页): 显示所有项目列表
+          - /project/:id (项目详情页): 显示单个项目的详细信息
+          
+          🎯 DEBUG: 调试模式路由配置
+          当前使用调试模式：<LoadingDebug />
+          要恢复正常模式，使用：<Home />
+          注意：不要修改这部分，除非你知道自己在做什么
+        */}
         <AnimatePresence mode='wait'>
           <Routes>
+            {/* 🎯 DEBUG: 调试模式 - 首页替换为调试组件 */}
+            {/* 恢复原始模式：将 LoadingDebug 改为 Home */}
             <Route path="/" element={<Home />} />
             <Route path="/work" element={<Work />} />
             <Route path="/project/:id" element={<ProjectDetail />} />

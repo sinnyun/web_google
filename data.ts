@@ -25,7 +25,7 @@ import { Project } from './types';
  * - 调整数字顺序可以改变主页展示顺序
  * - 可以添加或删除数字来改变展示的项目数量
  */
-export const HOME_SHOWCASE_ORDER = [3, 5, 9, 6, 1];
+export const HOME_SHOWCASE_ORDER = [1, 3, 9, 6, 2];
 
 // ============================================
 // 辅助函数：自动生成图片路径
@@ -72,17 +72,17 @@ export const PROJECTS: Project[] = [
      */
     layout: [1, 2, 3, 2, 1, 2, 3],
 
-    title: 'Neon Void',           // 项目标题（显示在网站上）
-    category: 'Visual Identity',  // 项目分类（用于筛选功能）
+    title: '霓虹虚空',           // 项目标题（显示在网站上）
+    category: '视觉识别',  // 项目分类（用于筛选功能）
     year: '2024',                 // 项目年份
-    location: 'Tokyo, Japan',     // 项目地点
+    location: '东京，日本',     // 项目地点
 
     // 项目描述（显示在项目详情页）
-    description: 'An exploration of light and absence in digital spaces. This project challenges the perception of depth using flat aesthetic principles combined with ray-traced lighting simulations.',
+    description: '探索数字空间中的光与虚空。这个项目使用平面美学原理结合光线追踪照明模拟，挑战深度的感知。',
 
     coverImage: '/images/neon-void/cover.jpg',  // 封面图片路径
     images: getLocalImages('neon-void', 12),    // 自动生成12张详情图片路径
-    tags: ['3D Render', 'Motion', 'Concept'],   // 项目标签（最多显示2个）
+    tags: ['3D渲染', '动画', '概念设计'],   // 项目标签（最多显示2个）
   },
 
   {
@@ -90,14 +90,14 @@ export const PROJECTS: Project[] = [
     id: 'urban-echo',
     numericId: 2,
     layout: [2, 2, 2, 2, 2, 2],   // 全部使用两列布局
-    title: 'Urban Echo',
-    category: 'Photography',
+    title: '城市回响',
+    category: '摄影',
     year: '2023',
-    location: 'Berlin, Germany',
-    description: 'Documenting the silent conversations between brutalist architecture and organic city growth. A study in contrast, texture, and the passage of time in metropolitan environments.',
+    location: '柏林，德国',
+    description: '记录野兽派建筑与有机城市生长之间的无声对话。一项关于大都市环境中对比、质感和时间流逝的研究。',
     coverImage: '/images/urban-echo/cover.jpg',
     images: getLocalImages('urban-echo', 14),
-    tags: ['Photography', 'Architecture', 'B&W'],
+    tags: ['摄影', '建筑', '黑白'],
   },
 
   {
@@ -105,14 +105,14 @@ export const PROJECTS: Project[] = [
     id: 'organic-flow',
     numericId: 3,
     layout: [1, 1, 1, 1, 1, 1, 1, 1],  // 全部使用单列布局（适合展示大图）
-    title: 'Organic Flow',
-    category: 'UX/UI Design',
+    title: '有机流动',
+    category: '用户体验设计',
     year: '2023',
-    location: 'Copenhagen, Denmark',
-    description: 'A comprehensive design system for a sustainable fashion brand. Focusing on accessibility, earth tones, and fluid navigation patterns that mimic natural growth.',
+    location: '哥本哈根，丹麦',
+    description: '为一个可持续时尚品牌打造的全面设计系统。专注于可访问性、大地色调和模仿自然生长的流畅导航模式。',
     coverImage: '/images/organic-flow/cover.jpg',
     images: getLocalImages('organic-flow', 10),
-    tags: ['UI/UX', 'Web Design', 'Branding'],
+    tags: ['界面设计', '网页设计', '品牌设计'],
   },
 
   {
@@ -120,14 +120,14 @@ export const PROJECTS: Project[] = [
     id: 'silent-noise',
     numericId: 4,
     layout: [3, 3, 3, 3, 3],      // 全部使用三列布局（密集画廊风格）
-    title: 'Silent Noise',
-    category: 'UX/UI Design',
+    title: '寂静噪音',
+    category: '用户体验设计',
     year: '2022',
-    location: 'London, UK',
-    description: 'An interactive audio-visual installation that translates ambient room noise into generative visual art patterns in real-time.',
+    location: '伦敦，英国',
+    description: '一个将环境室内噪音实时转换为生成性视觉艺术模式的互动视听装置。',
     coverImage: '/images/silent-noise/cover.jpg',
     images: getLocalImages('silent-noise', 15),
-    tags: ['Installation', 'Interactive', 'Sound Design'],
+    tags: ['装置艺术', '互动设计', '声音设计'],
   },
 
   {
@@ -135,14 +135,14 @@ export const PROJECTS: Project[] = [
     id: 'chromatic-abyss',
     numericId: 5,
     layout: [1, 3, 1, 3, 1, 3],   // 单列和三列交替（节奏感布局）
-    title: 'Chromatic Abyss',
-    category: 'Visual Identity',
+    title: '色彩深渊',
+    category: '视觉识别',
     year: '2024',
-    location: 'Reykjavik, Iceland',
-    description: 'A brand identity for a deep-sea exploration tech startup. The visual language mimics the bioluminescence found in the deepest parts of the ocean.',
+    location: '雷克雅未克，冰岛',
+    description: '为一家深海探索科技初创公司打造的品牌识别。视觉语言模仿了海洋最深处发现的生物发光现象。',
     coverImage: '/images/chromatic-abyss/cover.jpg',
     images: getLocalImages('chromatic-abyss', 12),
-    tags: ['Branding', 'Visual Identity', 'Tech'],
+    tags: ['品牌设计', '视觉识别', '科技'],
   },
 
   {
@@ -150,14 +150,14 @@ export const PROJECTS: Project[] = [
     id: 'paper-dreams',
     numericId: 6,
     layout: [2, 1, 2, 1, 2, 1],   // 两列和单列交替
-    title: 'Paper Dreams',
-    category: 'Editorial Design',
+    title: '纸艺之梦',
+    category: '编辑设计',
     year: '2023',
-    location: 'New York, USA',
-    description: 'A limited edition art book featuring papercraft sculptures. The layout emphasizes texture and shadow, bringing the tactile nature of paper to the digital screen.',
+    location: '纽约，美国',
+    description: '一本以纸雕艺术为特色的限量版艺术书籍。布局强调质感和阴影，将纸张的触感特质带到数字屏幕上。',
     coverImage: '/images/paper-dreams/cover.jpg',
     images: getLocalImages('paper-dreams', 11),
-    tags: ['Editorial', 'Print', 'Layout'],
+    tags: ['编辑设计', '印刷', '版式'],
   },
 
   {
@@ -165,14 +165,14 @@ export const PROJECTS: Project[] = [
     id: 'kinetic-type',
     numericId: 7,
     layout: [1, 2, 3, 2, 1],      // 金字塔式布局（从单列到三列再回到单列）
-    title: 'Kinetic Type',
-    category: 'Motion Graphics',
+    title: '动态字体',
+    category: '动态图形',
     year: '2024',
-    location: 'Seoul, South Korea',
-    description: 'An experimental motion graphics series exploring the expressive potential of kinetic typography. Words break, reform, and dance to convey meaning beyond semantics.',
+    location: '首尔，韩国',
+    description: '一个探索动态字体表现潜力的实验性动态图形系列。文字通过破碎、重组和舞蹈来传达超越语义的意义。',
     coverImage: '/images/kinetic-type/cover.jpg',
     images: getLocalImages('kinetic-type', 13),
-    tags: ['Motion', 'Typography', 'After Effects'],
+    tags: ['动画', '字体设计', '特效'],
   },
 
   {
@@ -180,14 +180,14 @@ export const PROJECTS: Project[] = [
     id: 'glass-house',
     numericId: 8,
     layout: [3, 1, 3, 1, 3],      // 三列和单列交替（倒金字塔节奏）
-    title: 'Glass House',
-    category: 'Architectural Viz',
+    title: '玻璃之屋',
+    category: '建筑可视化',
     year: '2023',
-    location: 'Vancouver, Canada',
-    description: 'Photorealistic 3D visualization of a conceptual glass house in a dense forest. The project focuses on the interplay of reflection, refraction, and environmental integration.',
+    location: '温哥华，加拿大',
+    description: '在茂密森林中的概念玻璃房子的写实3D可视化。项目专注于反射、折射和环境融合的相互作用。',
     coverImage: '/images/glass-house/cover.jpg',
     images: getLocalImages('glass-house', 10),
-    tags: ['ArchViz', '3D', 'Environment'],
+    tags: ['建筑可视化', '3D', '环境'],
   },
 
   {
@@ -195,14 +195,14 @@ export const PROJECTS: Project[] = [
     id: 'analog-glitch',
     numericId: 9,
     layout: [1, 1, 2, 2, 3, 3],   // 渐进式布局（从单列逐渐增加到三列）
-    title: 'Analog Glitch',
-    category: 'Mixed Media',
+    title: '模拟故障',
+    category: '混合媒介',
     year: '2022',
-    location: 'Paris, France',
-    description: 'A series of analog photographs physically manipulated and re-scanned. The project explores the beauty of destruction and the artifacts of the physical medium.',
+    location: '巴黎，法国',
+    description: '一系列经过物理处理和重新扫描的模拟照片。项目探索破坏的美感和物理媒介的纹理特征。',
     coverImage: '/images/analog-glitch/cover.jpg',
     images: getLocalImages('analog-glitch', 15),
-    tags: ['Photography', 'Mixed Media', 'Analog'],
+    tags: ['摄影', '混合媒介', '模拟'],
   },
 ];
 

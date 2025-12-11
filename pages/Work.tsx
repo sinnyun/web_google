@@ -203,8 +203,8 @@ const Work: React.FC = () => {
       transition={{ duration: 0.5 }}
     >
       {/* Header with inline Category Filter */}
-      <div className="absolute top-16 left-6 md:left-12 right-6 md:right-12 z-10 flex justify-between items-end pb-12">
-        <h2 className="text-6xl md:text-8xl font-serif opacity-10 md:opacity-20 text-stone-100 pointer-events-none">Selected Works</h2>
+      <div className="absolute top-32 left-6 md:left-12 right-6 md:right-12 z-10 flex justify-between items-end pb-12">
+        <h2 className="text-6xl md:text-8xl font-serif opacity-10 md:opacity-20 text-stone-100 pointer-events-none">精选作品集</h2>
 
         {/* Category Filter - Right Aligned */}
         <div className="flex gap-4 pointer-events-auto">
@@ -238,9 +238,9 @@ const Work: React.FC = () => {
       >
         {/* Intro Spacer / Title Card */}
         <div className="snap-center shrink-0 w-[80vw] md:w-[30vw] h-[60vh] flex flex-col justify-center pointer-events-none select-none">
-          <h1 className="text-4xl md:text-5xl font-serif mb-6">Explore <br /> Projects</h1>
+          <h1 className="text-4xl md:text-5xl font-serif mb-6">探索 <br /> 项目</h1>
           <p className="text-stone-400 max-w-xs text-sm leading-relaxed">
-            Swipe or scroll horizontally to navigate through the curated collection of works spanning digital art, photography, and installations.
+            横向滑动或滚动，即可浏览精心挑选的作品合集，其中涵盖数字艺术、摄影和装置艺术。
           </p>
           <div className="mt-8 w-24 h-[1px] bg-stone-700"></div>
         </div>
@@ -257,7 +257,7 @@ const Work: React.FC = () => {
 
       {/* Scroll Progress Indicator */}
       <div className="absolute bottom-8 left-0 w-full px-12 hidden md:flex justify-center pointer-events-none">
-        <span className="text-xs tracking-widest uppercase text-stone-600">Scroll or Drag Horizontal</span>
+        <span className="text-xs tracking-widest uppercase text-stone-600">滚动或水平拖动</span>
       </div>
     </motion.div>
   );
