@@ -29,6 +29,7 @@ import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import Home from './pages/Home';
 import Work from './pages/Work';
+// import WorkNew from './pages/work-new';
 import ProjectDetail from './pages/ProjectDetail';
 import AboutOverlay from './components/AboutOverlay';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -167,7 +168,11 @@ const App: React.FC = () => {
             {/* 🎯 DEBUG: 调试模式 - 首页替换为调试组件 */}
             {/* 恢复原始模式：将 LoadingDebug 改为 Home */}
             <Route path="/" element={<Home />} />
-            <Route path="/work" element={<Work />} />
+
+
+             <Route path="/work" element={<Work />} />
+            {/* <Route path="/work" element={<WorkNew />} /> */}
+
             <Route path="/project/:id" element={<ProjectDetail />} />
           </Routes>
         </AnimatePresence>
