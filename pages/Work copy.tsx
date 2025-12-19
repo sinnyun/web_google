@@ -2,14 +2,11 @@
 // 主要功能：展示项目作品的水平滚动画廊，支持分类筛选、拖拽滑动和3D倾斜效果
 
 // 1. 导入依赖
-import React, { useRef, useState, MouseEvent, useEffect } from 'react';
+import React, { useRef, useState, MouseEvent } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'; // 动画库
 import { Link } from 'react-router-dom'; // 路由导航
 import { PROJECTS } from '../data'; // 项目数据
 import { ArrowRight } from 'lucide-react'; // 箭头图标
-
-// 1.1 动画时长常量 - 统一管理动画持续时间
-const SCROLL_ANIMATION_DURATION = 600; // 滚动动画持续时间（毫秒）
 
 // 2. Work 组件 - 主页面组件
 const Work: React.FC = () => {
@@ -30,15 +27,6 @@ const Work: React.FC = () => {
   const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true); // 是否是初始加载
   const [prevCategory, setPrevCategory] = useState<string>('All'); // 上一次选中的分类
   const [isScrollingToStart, setIsScrollingToStart] = useState<boolean>(false); // 是否正在滚动到起始位置
-
-  // 2.3.1 初始加载状态管理 - 首次渲染后标记为非初始加载
-  useEffect(() => {
-    // 设置一个短暂延迟，确保初始动画完成后再更新状态
-    const timer = setTimeout(() => {
-      setIsInitialLoad(false);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
 
   // 2.4 分类计算逻辑 - 获取项目数量最多的前5个分类
   const allCategories = PROJECTS.map(p => p.category); // 所有项目分类
@@ -73,11 +61,11 @@ const Work: React.FC = () => {
       // 使用动画滚动到起始位置
       animateScroll(sliderRef.current, 0);
       
-      // 延迟更新分类，等待滚动动画完成（增加50ms缓冲时间确保动画完全结束）
+      // 延迟更新分类，等待滚动动画完成
       setTimeout(() => {
         setSelectedCategory(category);
         setIsScrollingToStart(false);
-      }, SCROLL_ANIMATION_DURATION + 50);
+      }, 650);
     }
   };
 
@@ -228,7 +216,7 @@ const Work: React.FC = () => {
   const animateScroll = (element: HTMLElement, target: number) => {
     const start = element.scrollLeft; // 起始位置
     const distance = target - start; // 滚动距离
-    const duration = SCROLL_ANIMATION_DURATION; // 使用统一的动画持续时间常量
+    const duration = 600; // 动画持续时间 (毫秒)
     let startTime: number | null = null; // 动画开始时间
 
     const animation = (currentTime: number) => {
@@ -324,7 +312,7 @@ const Work: React.FC = () => {
         <AnimatePresence mode="popLayout">
           {filteredProjects.map((project, index) => (
             <ProjectCard 
-              key={project.id} // 修复：只使用项目ID作为key，避免分类切换时不必要的重新挂载
+              key={`${selectedCategory}-${project.id}`} // 包含分类在键中，确保分类切换时重新创建组件
               project={project} 
               index={index}
               isInitialLoad={isInitialLoad}
@@ -332,7 +320,6 @@ const Work: React.FC = () => {
               selectedCategory={selectedCategory}
               isScrollingToStart={isScrollingToStart}
               shouldAnimateFromRight={isInitialLoad || prevCategory !== selectedCategory} // 新增prop，明确指示是否应该从右侧滑入
-              isDraggingRef={isDragging} // 传递拖拽状态，用于优化性能
             />
           ))}
         </AnimatePresence>
@@ -357,11 +344,11 @@ const ProjectCard: React.FC<{
   prevCategory: string;
   selectedCategory: string;
   isScrollingToStart: boolean;
-  shouldAnimateFromRight: boolean; // 是否应该从右侧滑入
-  isDraggingRef: React.MutableRefObject<boolean>; // 拖拽状态引用，用于性能优化
-}> = ({ project, index, isInitialLoad, prevCategory, selectedCategory, isScrollingToStart, shouldAnimateFromRight, isDraggingRef }) => {
+  shouldAnimateFromRight: boolean; // 新增：是否应该从右侧滑入
+}> = ({ project, index, isInitialLoad, prevCategory, selectedCategory, isScrollingToStart, shouldAnimateFromRight }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [isCardHovered, setIsCardHovered] = useState(false); // 修复：删除冗余的 isHovered 状态，统一使用 isCardHovered
+  const [isHovered, setIsHovered] = useState(false); // 追踪卡片是否被悬停
+  const [isCardHovered, setIsCardHovered] = useState(false); // 追踪整个卡片是否被悬停
 
   // 4.1 3D 倾斜效果相关的 motion 值
   const x = useMotionValue(0); // X轴运动值
@@ -375,15 +362,12 @@ const ProjectCard: React.FC<{
   const rotateX = useTransform(mouseY, [-0.5, 0.5], ["5deg", "-5deg"]); // Y轴鼠标位置映射到X轴旋转
   const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-5deg", "5deg"]); // X轴鼠标位置映射到Y轴旋转
   
-  // 4.2 统一动画逻辑 - 只在非滚动状态且需要从右侧滑入时执行
-  // 修复：简化逻辑判断，使代码更清晰
+  // 4.2 统一动画逻辑 - 所有分类切换都使用相同动画
+  // 每次分类切换时，所有卡片都从右侧滑入
   const shouldSlideInFromRight = !isScrollingToStart && shouldAnimateFromRight;
 
   // 4.3 鼠标移动事件处理 - 计算3D倾斜效果
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    // 性能优化：如果正在拖拽，不计算3D效果（可选优化，取决于实际性能需求）
-    // if (isDraggingRef.current) return;
-    
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect(); // 获取元素位置信息
     const width = rect.width;
@@ -398,124 +382,118 @@ const ProjectCard: React.FC<{
   };
 
   // 4.4 鼠标进入事件处理 - 设置悬停状态（整个卡片区域）
-  const handleMouseEnter = () => {
-    setIsCardHovered(true);
-  };
+const handleMouseEnter = () => {
+  setIsCardHovered(true);
+  setIsHovered(true);
+};
 
-  // 4.5 鼠标离开事件处理 - 重置3D效果和悬停状态（整个卡片区域）
-  const handleMouseLeave = () => {
-    x.set(0); // 重置X轴位置
-    y.set(0); // 重置Y轴位置
-    setIsCardHovered(false);
-  };
+// 4.5 鼠标离开事件处理 - 重置3D效果和悬停状态（整个卡片区域）
+const handleMouseLeave = () => {
+  x.set(0); // 重置X轴位置
+  y.set(0); // 重置Y轴位置
+  setIsCardHovered(false);
+  setIsHovered(false); // 取消悬停状态
+};
 
-  // 4.6 渲染项目卡片
-  return (
-    // 4.6.1 外层容器 - 管理整体动画和3D效果
+// 4.5 渲染项目卡片
+return (
+  // 4.5.1 外层容器 - 管理整体动画和3D效果
+  <motion.div
+    ref={ref}
+    className="snap-center shrink-0 w-[85vw] md:w-[60vw] lg:w-[45vw] h-[60vh] md:h-[70vh] relative group perspective-1000"
+    /* 样式说明:
+    // - snap-center: 滚动时对齐到中心
+    // - shrink-0: 防止在弹性布局中收缩
+    // - w-[85vw] md:w-[60vw] lg:w-[45vw]: 响应式宽度，从移动端到桌面端宽度递减
+    // - h-[60vh] md:h-[70vh]: 响应式高度，桌面端略高
+    // - perspective-1000: 透视效果，增强3D感 */
+    initial={shouldSlideInFromRight 
+      ? { opacity: 0, x: 150, scale: 0.9 } // 从右侧滑入: 透明、右侧偏移150px且缩小
+      : { opacity: 0, x: -100, scale: 0.9 } // 默认状态: 透明、左侧偏移100px且缩小
+    }
+    animate={{ opacity: 1, x: 0, y: 0, scale: 1 }} // 动画状态: 完全不透明、回到原位且恢复正常大小
+    exit={{ opacity: 0, x: -150, scale: 0.9 }} // 退出状态: 透明、向左侧偏移150px且缩小
+    transition={{ 
+      duration: 0.6, // 统一的动画持续时间
+      ease: [0.16, 1, 0.3, 1], // 更流畅的贝塞尔曲线
+      delay: shouldSlideInFromRight ? index * 0.1 : index * 0.05 // 分类切换时延迟更长，创造波浪式效果
+    }}
+    layout // 启用布局动画，当元素位置变化时自动过渡
+    layoutId={`project-card-${project.id}`} // 用于布局动画的唯一标识
+    onMouseMove={handleMouseMove}
+    onMouseEnter={handleMouseEnter}  // 鼠标进入整个卡片区域时触发
+    onMouseLeave={handleMouseLeave}
+    style={{
+      perspective: 1000 // 3D透视效果
+    }}
+  >
+    {/* 4.5.2 3D变换容器 - 应用旋转和3D效果 */}
     <motion.div
-      ref={ref}
-      className="snap-center shrink-0 w-[85vw] md:w-[60vw] lg:w-[45vw] h-[60vh] md:h-[70vh] relative perspective-1000"
-      /* 样式说明:
-      // - snap-center: 滚动时对齐到中心
-      // - shrink-0: 防止在弹性布局中收缩
-      // - w-[85vw] md:w-[60vw] lg:w-[45vw]: 响应式宽度，从移动端到桌面端宽度递减
-      // - h-[60vh] md:h-[70vh]: 响应式高度，桌面端略高
-      // - perspective-1000: 透视效果，增强3D感
-      // - 修复：移除 group 类，改用状态控制所有悬停效果，保持一致性 */
-      initial={shouldSlideInFromRight 
-        ? { opacity: 0, x: 150, scale: 0.9 } // 从右侧滑入: 透明、右侧偏移150px且缩小
-        : { opacity: 0, x: -100, scale: 0.9 } // 默认状态: 透明、左侧偏移100px且缩小
-      }
-      animate={{ opacity: 1, x: 0, y: 0, scale: 1 }} // 动画状态: 完全不透明、回到原位且恢复正常大小
-      exit={{ opacity: 0, x: -150, scale: 0.9 }} // 退出状态: 透明、向左侧偏移150px且缩小
-      transition={{ 
-        duration: 0.6, // 统一的动画持续时间
-        ease: [0.16, 1, 0.3, 1], // 更流畅的贝塞尔曲线
-        delay: shouldSlideInFromRight ? index * 0.1 : index * 0.05 // 分类切换时延迟更长，创造波浪式效果
-      }}
-      layout // 启用布局动画，当元素位置变化时自动过渡
-      layoutId={`project-card-${project.id}`} // 用于布局动画的唯一标识
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}  // 鼠标进入整个卡片区域时触发
-      onMouseLeave={handleMouseLeave}
       style={{
-        perspective: 1000 // 3D透视效果
+        rotateX, // X轴旋转
+        rotateY, // Y轴旋转
+        transformStyle: "preserve-3d" // 保持3D变换
       }}
+      className="w-full h-full relative"
     >
-      {/* 4.6.2 3D变换容器 - 应用旋转和3D效果 */}
-      <motion.div
-        style={{
-          rotateX, // X轴旋转
-          rotateY, // Y轴旋转
-          transformStyle: "preserve-3d" // 保持3D变换
-        }}
-        className="w-full h-full relative"
-      >
-        {/* 4.6.3 项目链接 - 可点击的整个卡片区域 */}
-        <Link to={`/project/${project.id}`} className="block w-full h-full relative overflow-hidden rounded-sm shadow-2xl" draggable="false">
-          {/* 4.6.4 悬停时的遮罩层 - 修复：改用状态控制，与其他悬停效果保持一致 */}
-          <motion.div 
-            className="absolute inset-0 z-10"
-            animate={isCardHovered 
-              ? { backgroundColor: "rgba(0,0,0,0)" } 
-              : { backgroundColor: "rgba(0,0,0,0.2)" }
-            }
-            transition={{ duration: 0.5 }}
-          />
-          
-          {/* 4.6.5 项目封面图片 - 修复：改用状态控制缩放效果 */}
-          <motion.img
-            src={project.coverImage}
-            alt={project.title}
-            className="w-full h-full object-cover"
-            /* 图片悬停时缓慢放大，1.5秒过渡 */
-            layoutId={`cover-${project.id}`} // 用于页面切换时的共享元素动画
-            draggable="false" // 禁止拖拽图片
-            style={{ translateZ: "0px" }} // 设置Z轴位置
-            animate={isCardHovered ? { scale: 1.1 } : { scale: 1 }} // 修复：使用状态控制缩放
-            transition={{ 
-              duration: 1.5, // 缓慢放大效果
-              ease: "easeOut" // 平滑的缓动
-            }}
-          />
+      {/* 4.5.3 项目链接 - 可点击的整个卡片区域 */}
+      <Link to={`/project/${project.id}`} className="block w-full h-full relative overflow-hidden rounded-sm shadow-2xl" draggable="false">
+        {/* 4.5.4 悬停时的遮罩层 */}
+        <div className="absolute inset-0 z-10 bg-black/20 group-hover:bg-black/0 transition-colors duration-500" />
+        
+        {/* 4.5.5 项目封面图片 */}
+        <motion.img
+          src={project.coverImage}
+          alt={project.title}
+          className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
+          /* 图片悬停时缓慢放大，1.5秒过渡 */
+          layoutId={`cover-${project.id}`} // 用于页面切换时的共享元素动画
+          draggable="false" // 禁止拖拽图片
+          style={{ translateZ: "0px" }} // 设置Z轴位置
+          transition={{ 
+            duration: 0.4, // 与卡片保持一致的过渡时间
+            ease: [0.25, 0.46, 0.45, 0.94] // 与卡片保持一致的缓动函数
+          }}
+        />
 
-          {/* 4.6.6 项目信息底部面板 - 根据卡片悬停状态显示 */}
-          <motion.div
-            className="absolute bottom-0 left-0 w-full p-6 md:p-8 bg-gradient-to-t from-black/90 to-transparent z-20"
-            style={{ transform: "translateZ(50px)" }}
-            initial={{ y: 16, opacity: 0 }} // 初始状态: 向下偏移16px且透明
-            animate={isCardHovered ? { y: 0, opacity: 1 } : { y: 16, opacity: 0 }} // 根据 isCardHovered 状态控制显示/隐藏
-            transition={{
-              duration: 0.3, // 更快的过渡响应鼠标悬停
-              ease: [0.25, 0.46, 0.45, 0.94] // 与卡片保持一致的缓动函数
-            }}
-          >
-            {/*  样式说明:
-            // - bg-gradient-to-t from-black/90 to-transparent: 从底部半透明黑色渐变到透明
-            // - transform: "translateZ(50px)": 在3D空间中向前移动50px，增强层次感 */ }
-            
-            {/* 4.6.7 项目标题和分类 - 左侧 */}
-            <div className="flex justify-between items-end border-b border-white/20 pb-4">
-              <div>
-                <span className="text-xs tracking-[0.2em] uppercase text-stone-300 block mb-2">{project.category}</span>
-                <h3 className="text-3xl md:text-4xl font-serif">{project.title}</h3>
-              </div>
-              {/* 4.6.8 查看详情按钮 - 右侧圆形按钮 */}
-              <div className="bg-white text-black p-3 rounded-full hover:scale-110 transition-transform">
-                <ArrowRight size={20} />
-              </div>
+        {/* 4.5.6 项目信息底部面板 - 根据卡片悬停状态显示 */}
+        <motion.div
+          className="absolute bottom-0 left-0 w-full p-6 md:p-8 bg-gradient-to-t from-black/90 to-transparent z-20"
+          style={{ transform: "translateZ(50px)" }}
+          initial={{ y: 16, opacity: 0 }} // 初始状态: 向下偏移16px且透明
+          animate={isCardHovered ? { y: 0, opacity: 1 } : { y: 16, opacity: 0 }} // 根据 isCardHovered 状态控制显示/隐藏
+          transition={{
+            duration: 0.3, // 更快的过渡响应鼠标悬停
+            ease: [0.25, 0.46, 0.45, 0.94] // 与卡片保持一致的缓动函数
+          }}
+        >
+          {/*  样式说明:
+          // - bg-gradient-to-t from-black/90 to-transparent: 从底部半透明黑色渐变到透明
+          // - transform: "translateZ(50px)": 在3D空间中向前移动50px，增强层次感 */ }
+          
+          {/* 4.5.7 项目标题和分类 - 左侧 */}
+          <div className="flex justify-between items-end border-b border-white/20 pb-4">
+            <div>
+              <span className="text-xs tracking-[0.2em] uppercase text-stone-300 block mb-2">{project.category}</span>
+              <h3 className="text-3xl md:text-4xl font-serif">{project.title}</h3>
             </div>
-                       {/* 4.6.9 项目标签 - 显示最多2个标签 */}
-            <div className="pt-4 flex gap-3">
-              {project.tags?.slice(0, 2).map(tag => (
-                <span key={tag} className="text-[10px] uppercase tracking-widest border border-white/20 px-2 py-1 rounded text-stone-400">{tag}</span>
-              ))}
+            {/* 4.5.8 查看详情按钮 - 右侧圆形按钮 */}
+            <div className="bg-white text-black p-3 rounded-full hover:scale-110 transition-transform">
+              <ArrowRight size={20} />
             </div>
-          </motion.div>
-        </Link>
-      </motion.div>
+          </div>
+          {/* 4.5.9 项目标签 - 显示最多2个标签 */}
+          <div className="pt-4 flex gap-3">
+            {project.tags?.slice(0, 2).map(tag => (
+              <span key={tag} className="text-[10px] uppercase tracking-widest border border-white/20 px-2 py-1 rounded text-stone-400">{tag}</span>
+            ))}
+          </div>
+        </motion.div>
+      </Link>
     </motion.div>
-  );
+  </motion.div>
+);
+
 }
 
 export default Work;
