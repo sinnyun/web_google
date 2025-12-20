@@ -22,24 +22,6 @@ const CUSTOM_EASE = [0.25, 0.46, 0.45, 0.94];
 // 动画阶段类型定义
 type AnimationPhase = 'loading' | 'expanding' | 'heroExpanding';
 
-// 修复：新增首次加载后元素显示延迟常量 - 统一管理所有延迟时间，避免注释与代码不一致
-const FIRST_LOAD_DELAYS = {
-  CATEGORY: 3.0,    // 类别标签延迟时间（秒）
-  TITLE: 3.2,       // 标题延迟时间（秒）
-  BUTTON: 3.5,      // 按钮延迟时间（秒）
-  BOTTOM_NAV: 1.8   // 底部导航栏延迟时间（秒）
-};
-
-// 修复：新增自动轮播时间常量 - 统一管理轮播时间参数
-const AUTO_PLAY_CONFIG = {
-  START_DELAY: 3000,    // 首次自动轮播延迟（毫秒）
-  INTERVAL: 6000,       // 轮播间隔（毫秒）
-  CHECK_FREQUENCY: 1000 // 检查频率（毫秒）
-};
-
-// 修复：新增切换节流时间常量 - 与动画时间保持一致
-const SLIDE_THROTTLE_TIME = 1300; // 切换节流时间（毫秒），与动画持续时间（1.2秒）+ 缓冲时间（0.1秒）保持一致
-
 // Preloader Component
 interface PreloaderProps {
   onComplete: () => void;
@@ -211,20 +193,12 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete, heroImageSrc }) => {
   );
 };
 
-
 const Home: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const lastWheelTime = React.useRef(0);
   const lastButtonTime = React.useRef(0);
-  
-  const [hasUserInteracted, setHasUserInteracted] = useState(false);
-  const [showBottomNav, setShowBottomNav] = useState(false);
-  
-  // 修复：添加 ref 来存储和控制自动轮播定时器
-  const autoPlayTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-  const autoPlayStartDelayRef = React.useRef<NodeJS.Timeout | null>(null);
 
   /*
    * 加载动画时间参数修改指南：
@@ -234,128 +208,76 @@ const Home: React.FC = () => {
    *    - expandDuration: 3000ms - 网格展开动画时间
    *    - heroExpandDuration: 1000ms - 英雄图片展开时间
    *    
-   * 2. 首次加载后元素显示时间（FIRST_LOAD_DELAYS对象）：
-   *    - CATEGORY: 3.0秒 - 类别标签
-   *    - TITLE: 3.2秒 - 标题
-   *    - BUTTON: 3.5秒 - 按钮
-   *    - BOTTOM_NAV: 1.8秒 - 底部导航
+   * 2. 首次加载后元素显示时间：
+   *    - 类别标签：5.0秒后显示
+   *    - 标题：5.2秒后显示
+   *    - 按钮：5.5秒后显示
+   *    - 底部导航：4.8秒后显示
    *    
-   * 3. 自动轮播参数（AUTO_PLAY_CONFIG对象）：
-   *    - START_DELAY: 3000ms (3秒) - 首次延迟
-   *    - INTERVAL: 6000ms (6秒) - 轮播间隔
-   *    - CHECK_FREQUENCY: 1000ms (1秒) - 检查频率
+   * 3. 自动轮播参数：
+   *    - 首次延迟：3000ms (3秒)
+   *    - 轮播间隔：6000ms (6秒)
    * 
    * 总加载动画时间 = loadingDelay + expandDuration + heroExpandDuration ≈ 4.05秒
    */
 
-  // 修复：底部导航栏在加载完成后延迟显示 - 只执行一次，避免重复触发动画
+  // Auto-advance - 自动轮播设置
   useEffect(() => {
-    if (!isLoading) {
-      const timer = setTimeout(() => {
-        setShowBottomNav(true);
-      }, FIRST_LOAD_DELAYS.BOTTOM_NAV * 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading]);
-
-  // 修复：提取自动轮播启动函数 - 用于初始启动和手动切换后重启
-  const startAutoPlay = React.useCallback(() => {
-    // 清除现有的定时器
-    if (autoPlayTimerRef.current) {
-      clearInterval(autoPlayTimerRef.current);
-      autoPlayTimerRef.current = null;
-    }
-    if (autoPlayStartDelayRef.current) {
-      clearTimeout(autoPlayStartDelayRef.current);
-      autoPlayStartDelayRef.current = null;
-    }
-
-    // 延迟后开始自动轮播
-    autoPlayStartDelayRef.current = setTimeout(() => {
-      let lastAutoSwitch = Date.now();
-      
-      autoPlayTimerRef.current = setInterval(() => {
+    if (isLoading) return;
+    
+    let lastAutoSwitch = Date.now();
+    
+    // 延迟2秒后开始自动轮播
+    const startDelay = setTimeout(() => {
+      const timer = setInterval(() => {
         const now = Date.now();
-        // 检查是否达到轮播间隔时间
-        if (now - lastAutoSwitch >= AUTO_PLAY_CONFIG.INTERVAL) {
-          // 检查是否可以切换（避免与手动操作冲突）
-          if (now - lastButtonTime.current >= SLIDE_THROTTLE_TIME) {
-            setDirection(1);
-            setCurrentIndex((prev) => (prev + 1) % SLIDER_PROJECTS.length);
-            lastAutoSwitch = now;
-            lastButtonTime.current = now;
-          }
+        // 确保距离上次切换至少6秒，防止快速切换
+        if (now - lastAutoSwitch >= 6000) {
+          nextSlide(true); // 传递true表示这是自动切换
+          lastAutoSwitch = now;
         }
-      }, AUTO_PLAY_CONFIG.CHECK_FREQUENCY);
-    }, AUTO_PLAY_CONFIG.START_DELAY);
-  }, []);
+      }, 1000); // 每秒检查一次
+      
+      return () => clearInterval(timer);
+    }, 2000);
 
-  // 修复：在加载完成后启动自动轮播
-  useEffect(() => {
-    if (!isLoading) {
-      startAutoPlay();
-    }
+    return () => clearTimeout(startDelay);
+  }, [isLoading]); // 只依赖isLoading
 
-    // 清理函数
-    return () => {
-      if (autoPlayTimerRef.current) {
-        clearInterval(autoPlayTimerRef.current);
-      }
-      if (autoPlayStartDelayRef.current) {
-        clearTimeout(autoPlayStartDelayRef.current);
-      }
-    };
-  }, [isLoading, startAutoPlay]);
-
-  // 修复：nextSlide 函数 - 手动切换后重启自动轮播定时器
   const nextSlide = (isAuto = false) => {
     const now = Date.now();
-    
-    // 统一节流检查
-    if (now - lastButtonTime.current < SLIDE_THROTTLE_TIME) return;
+    // 添加与动画时间相同的节流保护（1.2秒 + 0.1秒缓冲）
+    if (!isAuto && now - lastButtonTime.current < 1300) return;
     
     setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % SLIDER_PROJECTS.length);
     lastButtonTime.current = now;
-    
-    // 修复：如果是手动切换，重启自动轮播定时器，确保时间间隔一致
-    if (!isAuto) {
-      setHasUserInteracted(true);
-      startAutoPlay(); // 重启自动轮播，从头开始计时
-    }
   };
 
-  // 修复：prevSlide 函数 - 手动切换后重启自动轮播定时器
   const prevSlide = () => {
     const now = Date.now();
-    if (now - lastButtonTime.current < SLIDE_THROTTLE_TIME) return;
+    // 添加与动画时间相同的节流保护（1.2秒 + 0.1秒缓冲）
+    if (now - lastButtonTime.current < 1300) return;
     
     setDirection(-1);
     setCurrentIndex((prev) => (prev - 1 + SLIDER_PROJECTS.length) % SLIDER_PROJECTS.length);
     lastButtonTime.current = now;
-    
-    // 修复：标记用户已交互并重启自动轮播定时器
-    setHasUserInteracted(true);
-    startAutoPlay(); // 重启自动轮播，从头开始计时
   };
 
-  // 修复：goToSlide 函数 - 手动切换后重启自动轮播定时器
   const goToSlide = (index: number) => {
     const now = Date.now();
-    if (now - lastButtonTime.current < SLIDE_THROTTLE_TIME) return;
+    // 添加与动画时间相同的节流保护（1.2秒 + 0.1秒缓冲）
+    if (now - lastButtonTime.current < 1300) return;
     
     setDirection(index > currentIndex ? 1 : -1);
     setCurrentIndex(index);
     lastButtonTime.current = now;
-    
-    // 修复：标记用户已交互并重启自动轮播定时器
-    setHasUserInteracted(true);
-    startAutoPlay(); // 重启自动轮播，从头开始计时
   };
 
   const handleWheel = (e: React.WheelEvent) => {
     const now = Date.now();
-    if (now - lastWheelTime.current < SLIDE_THROTTLE_TIME) return;
+    // 使用与按钮切换相同的节流保护
+    if (now - lastWheelTime.current < 1300) return;
 
     if (e.deltaY > 0) {
       nextSlide();
@@ -367,9 +289,8 @@ const Home: React.FC = () => {
   };
 
   const currentProject = SLIDER_PROJECTS[currentIndex];
-  const isFirstSlide = !isLoading && currentIndex === 0 && !hasUserInteracted;
-
-  // ... 其余代码保持不变 ...
+  // Determine if this is the first slide after loading to disable initial animation
+  const isFirstSlide = !isLoading && currentIndex === 0 && direction === 0;
 
   // --- Animation Variants ---
   const slideVariants = {
@@ -436,15 +357,13 @@ const Home: React.FC = () => {
               style={{ zIndex: 1 }}
             >
               <div className="absolute inset-0 bg-black/20 z-10" />
-              
-              {/* 修复：图片缩放动画 - 统一从 scale: 1 开始，避免后续图片缩小的问题 */}
               <motion.img
                 src={currentProject.coverImage}
                 alt={currentProject.title}
                 className="w-full h-full object-cover"
-                /* Subtle parallax/Ken Burns effect */
-                initial={{ scale: 1 }} // 修复：所有图片统一从 1 开始
-                animate={{ scale: 1.05 }} // 缓慢放大到 1.05
+                /* Subtle parallax/Ken Burns. Disable initial scale for first slide to match preloader. */
+                initial={{ scale: isFirstSlide ? 1 : 1.1 }}
+                animate={{ scale: 1.05 }}
                 transition={{ duration: 8, ease: "linear" }}
               />
 
@@ -456,13 +375,9 @@ const Home: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
-                  // 修复：使用 FIRST_LOAD_DELAYS.CATEGORY 常量，确保注释与代码一致
-                  // 首次加载时延迟 3.0 秒显示，后续切换延迟 0.4 秒
-                  transition={{ 
-                    duration: 0.8, 
-                    ease: CUSTOM_EASE, 
-                    delay: isFirstSlide ? FIRST_LOAD_DELAYS.CATEGORY : 0.4 
-                  }}
+                  // 首次加载后延迟5.0秒显示 (预加载约4.5秒 + 0.5秒缓冲) - 确保在英雄图片展开后才显示
+                  // 如果要调整首次加载后文字出现的时间，请修改这里的5.0值
+                  transition={{ duration: 0.8, ease: CUSTOM_EASE, delay: isFirstSlide ? 3.0 : 0.4 }}
                   className="block text-sm md:text-base tracking-[0.3em] uppercase text-stone-300 mb-4"
                 >
                   {currentProject.category} — {currentProject.year}
@@ -473,14 +388,9 @@ const Home: React.FC = () => {
                   initial={{ opacity: 0, y: 40, rotate: 2 }}
                   animate={{ opacity: 1, y: 0, rotate: 0 }}
                   exit={{ opacity: 0, y: -40, rotate: -2 }}
-                  // 修复：使用 FIRST_LOAD_DELAYS.TITLE 常量，确保注释与代码一致
-                  // 首次加载时延迟 3.2 秒显示，比类别标签稍晚 0.2 秒
-                  // 后续切换延迟 0.5 秒
-                  transition={{ 
-                    duration: 1.0, 
-                    ease: CUSTOM_EASE, 
-                    delay: isFirstSlide ? FIRST_LOAD_DELAYS.TITLE : 0.5 
-                  }}
+                  // 首次加载后延迟5.2秒显示标题 - 比类别标签稍晚0.2秒
+                  // 如果要调整首次加载后标题出现的时间，请修改这里的5.2值
+                  transition={{ duration: 1.0, ease: CUSTOM_EASE, delay: isFirstSlide ? 2.2 : 0.5 }}
                   className="block text-5xl md:text-8xl lg:text-9xl font-serif pointer-events-auto cursor-pointer mb-8 py-2"
                 >
                   <Link to={`/project/${currentProject.id}`} className="hover:text-stone-300 transition-colors">
@@ -493,14 +403,9 @@ const Home: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  // 修复：使用 FIRST_LOAD_DELAYS.BUTTON 常量，确保注释与代码一致
-                  // 首次加载时延迟 3.5 秒显示，比标题再晚 0.3 秒
-                  // 后续切换延迟 0.8 秒
-                  transition={{ 
-                    delay: isFirstSlide ? FIRST_LOAD_DELAYS.BUTTON : 0.8, 
-                    duration: 0.8, 
-                    ease: "easeOut" 
-                  }}
+                  // 首次加载后延迟5.5秒显示按钮 - 比标题再晚0.3秒
+                  // 如果要调整首次加载后按钮出现的时间，请修改这里的5.5值
+                  transition={{ delay: isFirstSlide ? 2.5 : 0.8, duration: 0.8, ease: "easeOut" }}
                   className="pointer-events-auto"
                 >
                   <Link
@@ -525,7 +430,7 @@ const Home: React.FC = () => {
             <ArrowLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
           </button>
           <button
-            onClick={() => nextSlide(false)} 
+            onClick={nextSlide}
             className="pointer-events-auto p-4 rounded-full border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white hover:text-black transition-all duration-300 group"
           >
             <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
@@ -533,14 +438,15 @@ const Home: React.FC = () => {
         </div>
 
         {/* Bottom Navigation / Thumbnails */}
-        {/* 修复：底部导航栏动画 - 使用状态控制，只在首次加载后执行一次 */}
+        {/* Add entry animation for bottom bar */}
         <motion.div
           initial={{ y: "100%" }} // 初始状态：从底部滑入
-          animate={{ y: showBottomNav ? 0 : "100%" }} // 修复：根据状态控制显示/隐藏
+          animate={{ y: 0 }} // 动画到正常位置
           transition={{ 
             duration: 1.0, // 动画持续时间1秒
-            ease: CUSTOM_EASE // 使用自定义缓动曲线
-            // 修复：移除 delay，改用 useEffect 中的 setTimeout 控制延迟
+            ease: CUSTOM_EASE, // 使用自定义缓动曲线
+            delay: 4.8 // 首次加载后延迟4.8秒显示 - 在所有元素显示前显示底部导航
+            // 如果要调整底部导航栏出现的时间，请修改这里的4.8值
           }}
           className="absolute bottom-0 left-0 w-full z-30 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-32 pb-8 md:pb-12 px-6 md:px-12"
         >
